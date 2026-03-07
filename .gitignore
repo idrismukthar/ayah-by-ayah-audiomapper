@@ -5,14 +5,13 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Project-specific data (High-storage / Delicate)
+# Project-specific data (Large files excluded, JSONs included)
 data/
+!data/timestamp/
+!data/timestamp/*.json
 *.mp3
 *.wav
 *.m4a
-*.json
-!package.json
-!package-lock.json
 
 # Build files
 dist/
