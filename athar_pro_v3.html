@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Athar Mapper: Premiere Edition</title>
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+    <style>
+        :root { --gold: #c5a059; --bg: #0f0f0f; --panel: #1a1a1a; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        header { background: #000; padding: 10px 20px; border-bottom: 1px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
+        
+        .layout { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Sidebar */
+        .sidebar { width: 260px; background: var(--panel); border-right: 1px solid #333; display: flex; flex-direction: column; }
+        .file-list { flex: 1; overflow-y: auto; padding: 10px; }
+        .file-item { padding: 10px; background: #222; margin-bottom: 5px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; border: 1px solid transparent; }
+        .file-item:hover { border-color: var(--gold); }
+
+        /* Timeline / Waveform Area */
+        .workspace { flex: 1; display: flex; flex-direction: column; padding: 20px; background: #121212; }
+        #waveform { width: 100%; background: #000; border-radius: 8px; margin-bottom: 20px; border: 1px solid #333; }
+        
+        /* Markers List */
+        #marker-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        #marker-table th { text-align: left; color: var(--gold); font-size: 0.7rem; text-transform: uppercase; padding: 10px; border-bottom: 1px solid #333; }
+        #marker-table td { padding: 10px; font-family: 'Courier New', monospace; font-size: 0.9rem; border-bottom: 1px solid #222; }
+        .marker-row:hover { background: #1e1e1e; }
+        .delete-btn { color: #ff4444; cursor: pointer; background: none; border: none; font-weight: bold; }
+
+        .controls { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; }
+        .k-chip { background: #333; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; color: var(--gold); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-weight: bold; color: var(--gold); letter-spacing: 2px;">ATHAR PIONEER V3</div>
+    <div style="font-size: 0.8rem;">
+        <span class="k-chip">SPACE</span> Play/Pause | <span class="k-chip">M</span> Mark Ayah | <span class="k-chip">Z</span> Undo | <span class="k-chip">S</span> Save
+    </div>
+</header>
+
+<div class="layout">
+    <div class="sidebar">
+        <div style="padding: 15px; border-bottom: 1px solid #333;">
+            <input type="file" id="folderInput" webkitdirectory directory multiple style="width: 100%;">
+        </div>
+        <div class="file-list" id="fileList"></div>
+    </div>
+
+    <div class="workspace">
+        <h2 id="currentTitle" style="margin-top:0; font-size: 1.2rem;">Load a Surah to begin</h2>
+        
+        <div id="waveform"></div>
+
+        <div class="controls">
+            <button class="btn" onclick="wavesurfer.playPause()" style="background:var(--gold); border:none; padding:10px 20px; border-radius:4px; cursor:pointer;">PLAY / PAUSE</button>
+            <div id="timer" style="font-family: monospace; font-size: 1.2rem; color: var(--gold);">00:00.00</div>
+        </div>
+
+        <div style="flex: 1; overflow-y: auto; background: #0a0a0a; border-radius: 8px; border: 1px solid #333;">
+            <table id="marker-table">
+                <thead>
+                    <tr>
+                        <th>Ayah</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="marker-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let wavesurfer = WaveSurfer.create({
+        container: '#waveform',
+        waveColor: '#444',
+        progressColor: '#c5a059',
+        cursorColor: '#fff',
+        height: 128,
+        responsive: true,
+        normalize: true,
+        partialRender: true
+    });
+
+    const folderInput = document.getElementById('folderInput');
+    const fileList = document.getElementById('fileList');
+    const markerBody = document.getElementById('marker-body');
+    const timerDisplay = document.getElementById('timer');
+    
+    let stamps = [];
+    let currentSurah = "";
+
+    // Folder Loader
+    folderInput.onchange = (e) => {
+        const files = Array.from(e.target.files).filter(f => f.type.startsWith('audio/'));
+        fileList.innerHTML = '';
+        files.forEach(file => {
+            const item = document.createElement('div');
+            item.className = 'file-item';
+            item.innerText = file.name;
+            item.onclick = () => {
+                const url = URL.createObjectURL(file);
+                wavesurfer.load(url);
+                currentSurah = file.name.replace(/\.[^/.]+$/, "");
+                document.getElementById('currentTitle').innerText = file.name;
+                stamps = [];
+                renderTable();
+            };
+            fileList.appendChild(item);
+        });
+    };
+
+    // Update Timer
+    wavesurfer.on('audioprocess', () => {
+        const time = wavesurfer.getCurrentTime();
+        timerDisplay.innerText = formatTime(time);
+    });
+
+    function formatTime(s) {
+        return new Date(s * 1000).toISOString().substr(14, 7);
+    }
+
+    // THE "PREMIERE" MARKER LOGIC
+    function addMarker() {
+        if (!wavesurfer.isPlaying() && wavesurfer.getCurrentTime() === 0) return;
+        
+        let startTime = stamps.length > 0 ? stamps[stamps.length - 1].end : 0;
+        let endTime = wavesurfer.getCurrentTime().toFixed(2);
+        
+        stamps.push({
+            ayah: stamps.length + 1,
+            start: startTime,
+            end: endTime
+        });
+        renderTable();
+    }
+
+    function renderTable() {
+        markerBody.innerHTML = stamps.map((s, idx) => `
+            <tr class="marker-row">
+                <td>${s.ayah}</td>
+                <td>${s.start}s</td>
+                <td>${s.end}s</td>
+                <td><button class="delete-btn" onclick="deleteMarker(${idx})">×</button></td>
+            </tr>
+        `).join('');
+        markerBody.scrollTop = markerBody.scrollHeight;
+    }
+
+    function deleteMarker(idx) {
+        stamps.splice(idx, 1);
+        // Re-index ayahs
+        stamps.forEach((s, i) => s.ayah = i + 1);
+        renderTable();
+    }
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+        if (e.key.toLowerCase() === 'm') addMarker();
+        if (e.key === ' ') { e.preventDefault(); wavesurfer.playPause(); }
+        if (e.key.toLowerCase() === 'z') { stamps.pop(); renderTable(); }
+        if (e.key.toLowerCase() === 's') saveJSON();
+    });
+
+    function saveJSON() {
+        let data = {
+            surah: currentSurah,
+            reciter: "Abdul Rashid Ali Sufi",
+            riwayah: "Khalaf 'an Hamzah",
+            data: stamps
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${currentSurah}_map.json`;
+        a.click();
+    }
+</script>
+</body>
+</html>

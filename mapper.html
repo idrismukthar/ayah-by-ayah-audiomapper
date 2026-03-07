@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Athar Mapper: Architect v4.3</title>
+    <script src="https://unpkg.com/wavesurfer.js@6"></script>
+    <script src="https://unpkg.com/wavesurfer.js@6/dist/plugin/wavesurfer.regions.min.js"></script>
+    <style>
+        :root { --gold: #c5a059; --bg: #0b0b0b; --panel: #161616; --red: #ff4d4d; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; height: 100vh; display: flex; flex-direction: column; }
+        header { 
+            background: #000; 
+            padding: 5px 20px; 
+            border-bottom: 2px solid var(--gold); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            -webkit-app-region: drag; 
+        }
+        header > * { -webkit-app-region: no-drag; }
+        #folderStatus { margin-left: auto; margin-right: 140px; }
+        .layout { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Sidebar Fix */
+        .sidebar { width: 300px; background: var(--panel); border-right: 1px solid #333; display: flex; flex-direction: column; padding: 15px; box-sizing: border-box; }
+        #fileList { flex: 1; overflow-y: auto; margin-top: 15px; border-top: 1px solid #333; padding-top: 10px; min-height: 200px; }
+        .file-item { padding: 10px; background: #222; margin-bottom: 5px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; border-left: 3px solid transparent; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-item:hover { background: #333; border-left-color: var(--gold); }
+        .file-item.active { background: #333; border-left-color: var(--gold); font-weight: bold; }
+
+        .workspace { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
+        .meta-container { display: flex; gap: 15px; margin-bottom: 15px; background: #222; padding: 15px; border-radius: 8px; }
+        .input-group { display: flex; flex-direction: column; flex: 1; }
+        label { font-size: 0.7rem; color: var(--gold); margin-bottom: 5px; text-transform: uppercase; font-weight: bold; }
+        input { background: #111; border: 1px solid #444; color: white; padding: 10px; border-radius: 4px; }
+
+        #waveform-container { background: #000; border: 1px solid #333; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+        #waveform { width: 100%; height: 250px; }
+        
+        .zoom-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: #1a1a1a; padding: 10px; border-radius: 5px; }
+        .action-bar { display: flex; gap: 10px; margin-bottom: 15px; }
+        .btn { padding: 12px 20px; border-radius: 6px; cursor: pointer; border: none; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
+        .btn-play { background: var(--gold); color: black; }
+        .btn-stamp { background: var(--red); color: white; flex: 1; font-size: 1.1rem; }
+        
+        table { width: 100%; border-collapse: collapse; background: #111; border-radius: 8px; overflow: hidden; }
+        th { text-align: left; padding: 12px; color: var(--gold); border-bottom: 2px solid #333; font-size: 0.8rem; }
+        td { padding: 10px; border-bottom: 1px solid #222; font-family: monospace; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-weight: bold; color: var(--gold);">ATHAR ARCHITECT v4.3</div>
+    <div id="status" style="font-size: 0.8rem; color: #888;">Select audio files to start</div>
+    <div id="folderStatus" style="font-size: 0.7rem; color: var(--gold); background: #222; padding: 4px 10px; border-radius: 15px; border: 1px solid #444; display: none;">📁 No folder set</div>
+</header>
+
+<div class="layout">
+    <div class="sidebar">
+        <label>1. Project Management</label>
+        <button class="btn" id="loadProjectBtn" style="background: #333; color: var(--gold); border: 1px solid var(--gold); margin-bottom: 10px; width: 100%;">📂 Open Audio Folder</button>
+        <div id="fileInfo" style="font-size: 0.7rem; color: #888; margin-top: 5px;"></div>
+        <div id="fileList"></div>
+    </div>
+
+    <div class="workspace">
+        <div class="meta-container">
+            <div class="input-group"><label>Surah No.</label><input type="number" id="surahNum"></div>
+            <div class="input-group" style="flex: 3;"><label>Surah Title</label><input type="text" id="surahTitle"></div>
+        </div>
+
+        <div id="waveform-container">
+            <div id="waveform"></div>
+        </div>
+
+        <div class="zoom-controls">
+            <label>🔍 Waveform Zoom:</label>
+            <input type="range" id="zoomSlider" min="10" max="1000" value="10" style="flex:1">
+        </div>
+
+        <div class="action-bar">
+            <button class="btn btn-play" onclick="ws.playPause()">Play/Pause (Space)</button>
+            <button class="btn btn-stamp" onclick="markAyah()">Stamp Ayah (M)</button>
+            <button class="btn" onclick="undo()" style="background:#444; color:white">Undo (Z)</button>
+            <button class="btn" onclick="saveJSON()" style="background:#28a745; color:white">💾 Save JSON (S)</button>
+        </div>
+
+        <div style="flex: 1; overflow-y: auto; background: #000; border: 1px solid #333; border-radius: 8px;">
+            <table>
+                <thead><tr><th>Ayah</th><th>Start</th><th>End</th><th>Duration</th></tr></thead>
+                <tbody id="markerBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let ws;
+    try {
+        ws = WaveSurfer.create({
+            container: '#waveform',
+            waveColor: '#555',
+            progressColor: '#c5a059', 
+            cursorColor: '#fff',
+            height: 250,
+            minPxPerSec: 10,
+            plugins: [ WaveSurfer.regions.create() ]
+        });
+    } catch (e) {
+        console.error("WaveSurfer Error:", e);
+        document.getElementById('status').innerText = "Error loading WaveSurfer.";
+    }
+
+    let stamps = [];
+    let lastStampTime = 0;
+    let currentProjectDir = null;
+    let activeAudioFile = null;
+
+    const fileList = document.getElementById('fileList');
+    const fileInfo = document.getElementById('fileInfo');
+    const surahNumInput = document.getElementById('surahNum');
+    const surahTitleInput = document.getElementById('surahTitle');
+    const markerBody = document.getElementById('markerBody');
+    const zoomSlider = document.getElementById('zoomSlider');
+    const loadProjectBtn = document.getElementById('loadProjectBtn');
+
+    if (ws) zoomSlider.oninput = () => ws.zoom(Number(zoomSlider.value));
+
+    // Handle Folder Selection
+    loadProjectBtn.onclick = async () => {
+        const dir = await window.electronAPI.selectDirectory();
+        if (dir) {
+            currentProjectDir = dir;
+            window.electronAPI.storeSet('lastDir', dir);
+            loadFiles(dir);
+        }
+    };
+
+    async function loadFiles(dir) {
+        const files = await window.electronAPI.getAudioFiles(dir);
+        fileList.innerHTML = '';
+        
+        if(files.length === 0) {
+            fileInfo.innerText = "No audio files found.";
+            return;
+        }
+
+        // Numeric Sort
+        files.sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+        fileInfo.innerText = `${files.length} audio(s) found.`;
+
+        files.forEach(fileName => {
+            const div = document.createElement('div');
+            div.className = 'file-item';
+            div.innerText = fileName;
+            div.title = fileName;
+            div.onclick = () => {
+                document.querySelectorAll('.file-item').forEach(i => i.classList.remove('active'));
+                div.classList.add('active');
+                
+                activeAudioFile = fileName;
+                const fullPath = window.electronAPI.pathJoin(currentProjectDir, fileName);
+                
+                // In Electron, we can use the absolute path directly if webSecurity is disabled or via protocol
+                // For simplicity here, we'll assume the path is enough or we might need to use a file:// URL
+                ws.load('file://' + fullPath);
+                
+                stamps = [];
+                ws.clearRegions();
+                renderTable();
+                
+                let name = fileName.replace(/\.[^/.]+$/, "");
+                let sNumMatch = name.match(/^\d+/);
+                surahNumInput.value = sNumMatch ? sNumMatch[0] : "";
+                let cleanTitle = name.replace(/^\d+[\s\-_]*/, "").trim();
+                surahTitleInput.value = cleanTitle;
+                
+                document.getElementById('status').innerText = "Mapping: " + fileName;
+            };
+            fileList.appendChild(div);
+        });
+    }
+
+    // Startup: Load last directory
+    window.onload = async () => {
+        const lastDir = await window.electronAPI.storeGet('lastDir');
+        if (lastDir) {
+            currentProjectDir = lastDir;
+            loadFiles(lastDir);
+        }
+    };
+
+    function markAyah() {
+        if (!ws.isPlaying() && ws.getCurrentTime() === 0) return;
+        
+        let nowMs = Date.now();
+        if (nowMs - lastStampTime < 300) return;
+        lastStampTime = nowMs;
+
+        let now = ws.getCurrentTime().toFixed(2);
+        let lastEnd = stamps.length > 0 ? stamps[stamps.length - 1].end : 0;
+        
+        stamps.push({ ayah: stamps.length + 1, start: lastEnd, end: now });
+        ws.addRegion({ start: now, end: parseFloat(now) + 0.1, color: 'rgba(255, 77, 77, 0.9)', drag: false, resize: false });
+        renderTable();
+    }
+
+    function renderTable() {
+        let html = stamps.map(s => `<tr><td>${s.ayah}</td><td>${s.start}s</td><td>${s.end}s</td><td>${(s.end-s.start).toFixed(2)}s</td></tr>`).join('');
+        if (ws && ws.getDuration() > 0) {
+            let currentAyah = stamps.length + 1;
+            let lastEnd = stamps.length > 0 ? stamps[stamps.length - 1].end : 0;
+            html += `<tr style="opacity: 0.5; font-style: italic;"><td>${currentAyah}</td><td>${lastEnd}s</td><td>--</td><td>(In Progress)</td></tr>`;
+        }
+        markerBody.innerHTML = html;
+        markerBody.scrollTop = markerBody.scrollHeight;
+    }
+
+    function undo() {
+        stamps.pop();
+        ws.clearRegions();
+        stamps.forEach(s => ws.addRegion({start: s.end, end: parseFloat(s.end)+0.1, color: 'rgba(255, 77, 77, 0.9)'}));
+        renderTable();
+    }
+
+    async function saveJSON() {
+        const sNum = surahNumInput.value.padStart(3, '0');
+        const sTitle = surahTitleInput.value.trim().replace(/\s+/g, '-');
+        const fileName = `${sNum}_${sTitle}.json`;
+        
+        let finalStamps = [...stamps];
+        let duration = ws.getDuration();
+        let lastEnd = finalStamps.length > 0 ? parseFloat(finalStamps[finalStamps.length - 1].end) : 0;
+
+        if (duration > lastEnd + 0.1) {
+            finalStamps.push({
+                ayah: finalStamps.length + 1,
+                start: lastEnd.toFixed(2),
+                end: duration.toFixed(2)
+            });
+        }
+
+        let output = {
+            surah_number: parseInt(surahNumInput.value),
+            surah_name: surahTitleInput.value,
+            reciter: "Abdul Rashid Ali Sufi",
+            riwayah: "Khalaf 'an Hamzah",
+            data: finalStamps
+        };
+
+        const jsonStr = JSON.stringify(output, null, 2);
+        
+        // Target path as requested by user
+        const targetDir = "C:\\Users\\HP\\Desktop\\ayah-by-ayah-audiomapper\\data\\timestamp";
+        const fullSavePath = window.electronAPI.pathJoin(targetDir, fileName);
+
+        const result = await window.electronAPI.saveJSON({ filePath: fullSavePath, content: jsonStr });
+        
+        if (result.success) {
+            document.getElementById('status').innerText = "✅ Saved directly to " + fileName;
+        } else {
+            alert("Error saving file: " + result.error);
+        }
+    }
+
+    window.onkeydown = (e) => {
+        if(document.activeElement.tagName === 'INPUT') return;
+        if(e.key.toLowerCase() === 'm') {
+            if (e.repeat) return;
+            markAyah();
+        }
+        if(e.code === 'Space') { e.preventDefault(); ws.playPause(); }
+        if(e.key.toLowerCase() === 'z') undo();
+        if(e.key.toLowerCase() === 's') saveJSON();
+    }
+</script>
+</body>
+</html>

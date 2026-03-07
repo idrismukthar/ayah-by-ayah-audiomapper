@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Athar: Ayah Timestamp Mapper</title>
+    <style>
+        body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: #2a2a2a; padding: 20px; border-radius: 12px; }
+        audio { width: 100%; margin: 20px 0; }
+        .btn { background: #007bff; border: none; color: white; padding: 15px 30px; font-size: 1.2rem; border-radius: 8px; cursor: pointer; margin: 10px; }
+        .btn:active { background: #0056b3; }
+        #log { text-align: left; background: #000; padding: 10px; height: 200px; overflow-y: scroll; font-family: monospace; margin-top: 20px; }
+        .hint { color: #888; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Athar Mapper 1.0</h1>
+        <p class="hint">Upload the Surah MP3, hit Play, and press <b>SPACE</b> at the end of every Ayah.</p>
+        
+        <input type="file" id="audioFile" accept="audio/*">
+        <br>
+        <audio id="player" controls></audio>
+        
+        <div>
+            <button class="btn" id="markBtn">HIT SPACE TO MARK AYAH</button>
+        </div>
+
+        <div id="log">--- Timestamps will appear here ---</div>
+        
+        <button class="btn" style="background: #28a745;" id="exportBtn">Download JSON</button>
+    </div>
+
+    <script>
+        const player = document.getElementById('player');
+        const audioFile = document.getElementById('audioFile');
+        const markBtn = document.getElementById('markBtn');
+        const log = document.getElementById('log');
+        const exportBtn = document.getElementById('exportBtn');
+
+        let timestamps = [];
+        let ayahCount = 1;
+
+        // Load Audio
+        audioFile.onchange = (e) => {
+            const file = e.target.files[0];
+            player.src = URL.createObjectURL(file);
+        };
+
+        // Marking Logic
+        function markAyah() {
+            if (player.paused) return;
+            
+            let currentTime = player.currentTime.toFixed(2);
+            let startTime = timestamps.length === 0 ? "0.00" : timestamps[timestamps.length - 1].end;
+            
+            let entry = {
+                ayah: ayahCount,
+                start: startTime,
+                end: currentTime
+            };
+
+            timestamps.push(entry);
+            log.innerHTML += `<div>Ayah ${ayahCount}: ${startTime}s to ${currentTime}s</div>`;
+            log.scrollTop = log.scrollHeight;
+            ayahCount++;
+        }
+
+        // Spacebar Shortcut
+        window.onkeydown = (e) => {
+            if (e.code === "Space") {
+                e.preventDefault();
+                markAyah();
+            }
+        };
+
+        markBtn.onclick = markAyah;
+
+        // Export to JSON
+        exportBtn.onclick = () => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(timestamps, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "surah_timestamps.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        };
+    </script>
+</body>
+</html>
