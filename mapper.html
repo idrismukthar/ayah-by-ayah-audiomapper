@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Athar Mapper: Architect v4.3</title>
-    <script src="https://unpkg.com/wavesurfer.js@6"></script>
-    <script src="https://unpkg.com/wavesurfer.js@6/dist/plugin/wavesurfer.regions.min.js"></script>
+    <script src="lib/wavesurfer.min.js"></script>
+    <script src="lib/wavesurfer.regions.min.js"></script>
     <style>
         :root { --gold: #c5a059; --bg: #0b0b0b; --panel: #161616; --red: #ff4d4d; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; height: 100vh; display: flex; flex-direction: column; }
@@ -104,6 +104,7 @@
             cursorColor: '#fff',
             height: 250,
             minPxPerSec: 10,
+            backend: 'MediaElement', // FIX: Streaming mode for large files like Baqarah
             plugins: [ WaveSurfer.regions.create() ]
         });
     } catch (e) {
