@@ -1,0 +1,53 @@
+{
+  "surah_number": 104,
+  "surah_name": "Al Humaza",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "13.75"
+    },
+    {
+      "ayah": 2,
+      "start": "13.75",
+      "end": "19.00"
+    },
+    {
+      "ayah": 3,
+      "start": "19.00",
+      "end": "26.07"
+    },
+    {
+      "ayah": 4,
+      "start": "26.07",
+      "end": "31.76"
+    },
+    {
+      "ayah": 5,
+      "start": "31.76",
+      "end": "38.19"
+    },
+    {
+      "ayah": 6,
+      "start": "38.19",
+      "end": "42.08"
+    },
+    {
+      "ayah": 7,
+      "start": "42.08",
+      "end": "46.61"
+    },
+    {
+      "ayah": 8,
+      "start": "46.61",
+      "end": "51.42"
+    },
+    {
+      "ayah": 9,
+      "start": "51.42",
+      "end": "63.19"
+    }
+  ]
+}

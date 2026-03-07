@@ -1,0 +1,48 @@
+{
+  "surah_number": 102,
+  "surah_name": "At Takaathur",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "11.28"
+    },
+    {
+      "ayah": 2,
+      "start": "11.28",
+      "end": "15.35"
+    },
+    {
+      "ayah": 3,
+      "start": "15.35",
+      "end": "20.01"
+    },
+    {
+      "ayah": 4,
+      "start": "20.01",
+      "end": "25.51"
+    },
+    {
+      "ayah": 5,
+      "start": "25.51",
+      "end": "30.94"
+    },
+    {
+      "ayah": 6,
+      "start": "30.94",
+      "end": "36.14"
+    },
+    {
+      "ayah": 7,
+      "start": "36.14",
+      "end": "42.78"
+    },
+    {
+      "ayah": 8,
+      "start": "42.78",
+      "end": "52.82"
+    }
+  ]
+}

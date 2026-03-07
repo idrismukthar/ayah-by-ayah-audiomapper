@@ -1,0 +1,33 @@
+{
+  "surah_number": 113,
+  "surah_name": "Al Falaq",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "9.26"
+    },
+    {
+      "ayah": 2,
+      "start": "9.26",
+      "end": "12.65"
+    },
+    {
+      "ayah": 3,
+      "start": "12.65",
+      "end": "18.56"
+    },
+    {
+      "ayah": 4,
+      "start": "18.56",
+      "end": "24.94"
+    },
+    {
+      "ayah": 5,
+      "start": "24.94",
+      "end": "36.28"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "surah_number": 108,
+  "surah_name": "Al Kawthar",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "10.18"
+    },
+    {
+      "ayah": 2,
+      "start": "10.18",
+      "end": "13.82"
+    },
+    {
+      "ayah": 3,
+      "start": "13.82",
+      "end": "25.47"
+    }
+  ]
+}

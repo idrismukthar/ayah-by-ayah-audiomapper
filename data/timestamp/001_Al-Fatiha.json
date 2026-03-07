@@ -1,0 +1,43 @@
+{
+  "surah_number": 1,
+  "surah_name": "Al Fatiha",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "9.47"
+    },
+    {
+      "ayah": 2,
+      "start": "9.47",
+      "end": "14.29"
+    },
+    {
+      "ayah": 3,
+      "start": "14.29",
+      "end": "18.15"
+    },
+    {
+      "ayah": 4,
+      "start": "18.15",
+      "end": "22.31"
+    },
+    {
+      "ayah": 5,
+      "start": "22.31",
+      "end": "27.48"
+    },
+    {
+      "ayah": 6,
+      "start": "27.48",
+      "end": "32.36"
+    },
+    {
+      "ayah": 7,
+      "start": "32.36",
+      "end": "51.46"
+    }
+  ]
+}

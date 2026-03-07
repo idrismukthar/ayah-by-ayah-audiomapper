@@ -1,0 +1,23 @@
+{
+  "surah_number": 110,
+  "surah_name": "An Nasr",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "10.92"
+    },
+    {
+      "ayah": 2,
+      "start": "10.92",
+      "end": "19.28"
+    },
+    {
+      "ayah": 3,
+      "start": "19.28",
+      "end": "37.51"
+    }
+  ]
+}

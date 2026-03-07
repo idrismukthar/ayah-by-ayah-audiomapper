@@ -1,0 +1,48 @@
+{
+  "surah_number": 95,
+  "surah_name": "At Tin",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "6.44"
+    },
+    {
+      "ayah": 2,
+      "start": "6.44",
+      "end": "9.36"
+    },
+    {
+      "ayah": 3,
+      "start": "9.36",
+      "end": "12.94"
+    },
+    {
+      "ayah": 4,
+      "start": "12.94",
+      "end": "22.61"
+    },
+    {
+      "ayah": 5,
+      "start": "22.61",
+      "end": "28.77"
+    },
+    {
+      "ayah": 6,
+      "start": "28.77",
+      "end": "38.89"
+    },
+    {
+      "ayah": 7,
+      "start": "38.89",
+      "end": "43.59"
+    },
+    {
+      "ayah": 8,
+      "start": "43.59",
+      "end": "52.69"
+    }
+  ]
+}

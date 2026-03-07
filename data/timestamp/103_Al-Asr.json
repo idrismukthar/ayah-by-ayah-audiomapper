@@ -1,0 +1,23 @@
+{
+  "surah_number": 103,
+  "surah_name": "Al Asr",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "9.54"
+    },
+    {
+      "ayah": 2,
+      "start": "9.54",
+      "end": "15.78"
+    },
+    {
+      "ayah": 3,
+      "start": "15.78",
+      "end": "29.94"
+    }
+  ]
+}

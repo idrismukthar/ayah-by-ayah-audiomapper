@@ -1,0 +1,48 @@
+{
+  "surah_number": 98,
+  "surah_name": "Al Bayyina",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "18.12"
+    },
+    {
+      "ayah": 2,
+      "start": "18.12",
+      "end": "25.04"
+    },
+    {
+      "ayah": 3,
+      "start": "25.04",
+      "end": "28.93"
+    },
+    {
+      "ayah": 4,
+      "start": "28.93",
+      "end": "41.25"
+    },
+    {
+      "ayah": 5,
+      "start": "41.25",
+      "end": "62.90"
+    },
+    {
+      "ayah": 6,
+      "start": "62.90",
+      "end": "81.06"
+    },
+    {
+      "ayah": 7,
+      "start": "81.06",
+      "end": "93.26"
+    },
+    {
+      "ayah": 8,
+      "start": "93.26",
+      "end": "128.47"
+    }
+  ]
+}

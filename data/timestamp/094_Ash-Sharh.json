@@ -1,0 +1,48 @@
+{
+  "surah_number": 94,
+  "surah_name": "Ash Sharh",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "9.65"
+    },
+    {
+      "ayah": 2,
+      "start": "9.65",
+      "end": "13.95"
+    },
+    {
+      "ayah": 3,
+      "start": "13.95",
+      "end": "20.19"
+    },
+    {
+      "ayah": 4,
+      "start": "20.19",
+      "end": "23.91"
+    },
+    {
+      "ayah": 5,
+      "start": "23.91",
+      "end": "28.65"
+    },
+    {
+      "ayah": 6,
+      "start": "28.65",
+      "end": "33.55"
+    },
+    {
+      "ayah": 7,
+      "start": "33.55",
+      "end": "37.92"
+    },
+    {
+      "ayah": 8,
+      "start": "37.92",
+      "end": "44.64"
+    }
+  ]
+}

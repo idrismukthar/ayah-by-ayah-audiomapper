@@ -1,0 +1,38 @@
+{
+  "surah_number": 114,
+  "surah_name": "An Nas",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "11.19"
+    },
+    {
+      "ayah": 2,
+      "start": "11.19",
+      "end": "15.42"
+    },
+    {
+      "ayah": 3,
+      "start": "15.42",
+      "end": "19.73"
+    },
+    {
+      "ayah": 4,
+      "start": "19.73",
+      "end": "26.21"
+    },
+    {
+      "ayah": 5,
+      "start": "26.21",
+      "end": "32.70"
+    },
+    {
+      "ayah": 6,
+      "start": "32.70",
+      "end": "40.57"
+    }
+  ]
+}

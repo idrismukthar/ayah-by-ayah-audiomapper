@@ -1,0 +1,63 @@
+{
+  "surah_number": 93,
+  "surah_name": "Ad Dhuhaa",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "3.95"
+    },
+    {
+      "ayah": 2,
+      "start": "3.95",
+      "end": "7.23"
+    },
+    {
+      "ayah": 3,
+      "start": "7.23",
+      "end": "11.42"
+    },
+    {
+      "ayah": 4,
+      "start": "11.42",
+      "end": "17.14"
+    },
+    {
+      "ayah": 5,
+      "start": "17.14",
+      "end": "22.14"
+    },
+    {
+      "ayah": 6,
+      "start": "22.14",
+      "end": "27.28"
+    },
+    {
+      "ayah": 7,
+      "start": "27.28",
+      "end": "34.67"
+    },
+    {
+      "ayah": 8,
+      "start": "34.67",
+      "end": "41.84"
+    },
+    {
+      "ayah": 9,
+      "start": "41.84",
+      "end": "47.10"
+    },
+    {
+      "ayah": 10,
+      "start": "47.10",
+      "end": "54.63"
+    },
+    {
+      "ayah": 11,
+      "start": "54.63",
+      "end": "64.78"
+    }
+  ]
+}

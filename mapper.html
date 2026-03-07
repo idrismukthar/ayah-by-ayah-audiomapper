@@ -10,15 +10,13 @@
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; height: 100vh; display: flex; flex-direction: column; }
         header { 
             background: #000; 
-            padding: 5px 20px; 
+            padding: 10px 20px; 
             border-bottom: 2px solid var(--gold); 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            -webkit-app-region: drag; 
         }
-        header > * { -webkit-app-region: no-drag; }
-        #folderStatus { margin-left: auto; margin-right: 140px; }
+        #folderStatus { margin-left: auto; margin-right: 20px; }
         .layout { display: flex; flex: 1; overflow: hidden; }
         
         /* Sidebar Fix */
@@ -58,8 +56,8 @@
 
 <div class="layout">
     <div class="sidebar">
-        <label>1. Project Management</label>
-        <button class="btn" id="loadProjectBtn" style="background: #333; color: var(--gold); border: 1px solid var(--gold); margin-bottom: 10px; width: 100%;">📂 Open Audio Folder</button>
+        <label>1. Select Audio Files</label>
+        <input type="file" id="fileInput" accept="audio/*" multiple style="color: #888; font-size: 0.8rem;">
         <div id="fileInfo" style="font-size: 0.7rem; color: #888; margin-top: 5px;"></div>
         <div id="fileList"></div>
     </div>
@@ -83,6 +81,7 @@
             <button class="btn btn-play" onclick="ws.playPause()">Play/Pause (Space)</button>
             <button class="btn btn-stamp" onclick="markAyah()">Stamp Ayah (M)</button>
             <button class="btn" onclick="undo()" style="background:#444; color:white">Undo (Z)</button>
+            <button class="btn" onclick="selectFolder()" style="background:#007bff; color:white">📂 Set Folder</button>
             <button class="btn" onclick="saveJSON()" style="background:#28a745; color:white">💾 Save JSON (S)</button>
         </div>
 
@@ -114,81 +113,59 @@
 
     let stamps = [];
     let lastStampTime = 0;
-    let currentProjectDir = null;
-    let activeAudioFile = null;
-
+    let directoryHandle = null;
     const fileList = document.getElementById('fileList');
     const fileInfo = document.getElementById('fileInfo');
     const surahNumInput = document.getElementById('surahNum');
     const surahTitleInput = document.getElementById('surahTitle');
     const markerBody = document.getElementById('markerBody');
     const zoomSlider = document.getElementById('zoomSlider');
-    const loadProjectBtn = document.getElementById('loadProjectBtn');
 
     if (ws) zoomSlider.oninput = () => ws.zoom(Number(zoomSlider.value));
 
-    // Handle Folder Selection
-    loadProjectBtn.onclick = async () => {
-        const dir = await window.electronAPI.selectDirectory();
-        if (dir) {
-            currentProjectDir = dir;
-            window.electronAPI.storeSet('lastDir', dir);
-            loadFiles(dir);
-        }
-    };
-
-    async function loadFiles(dir) {
-        const files = await window.electronAPI.getAudioFiles(dir);
+    // REWRITTEN FILE LOADER (Individual File Selection)
+    document.getElementById('fileInput').onchange = (e) => {
+        const files = Array.from(e.target.files);
         fileList.innerHTML = '';
         
         if(files.length === 0) {
-            fileInfo.innerText = "No audio files found.";
+            fileInfo.innerText = "";
             return;
         }
 
         // Numeric Sort
-        files.sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
-        fileInfo.innerText = `${files.length} audio(s) found.`;
+        files.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
 
-        files.forEach(fileName => {
+        fileInfo.innerText = `${files.length} file(s) selected`;
+
+        files.forEach(file => {
             const div = document.createElement('div');
             div.className = 'file-item';
-            div.innerText = fileName;
-            div.title = fileName;
+            div.innerText = file.name;
+            div.title = file.name; // Shows full name on hover
             div.onclick = () => {
                 document.querySelectorAll('.file-item').forEach(i => i.classList.remove('active'));
                 div.classList.add('active');
                 
-                activeAudioFile = fileName;
-                const fullPath = window.electronAPI.pathJoin(currentProjectDir, fileName);
-                
-                // In Electron, we can use the absolute path directly if webSecurity is disabled or via protocol
-                // For simplicity here, we'll assume the path is enough or we might need to use a file:// URL
-                ws.load('file://' + fullPath);
-                
+                ws.load(URL.createObjectURL(file));
                 stamps = [];
                 ws.clearRegions();
                 renderTable();
                 
-                let name = fileName.replace(/\.[^/.]+$/, "");
+                // Improved Extraction Logic
+                let name = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
                 let sNumMatch = name.match(/^\d+/);
                 surahNumInput.value = sNumMatch ? sNumMatch[0] : "";
+                
+                // Clean Title: remove leading digits and common separators (space, dash, underscore)
                 let cleanTitle = name.replace(/^\d+[\s\-_]*/, "").trim();
                 surahTitleInput.value = cleanTitle;
                 
-                document.getElementById('status').innerText = "Mapping: " + fileName;
+                document.getElementById('status').innerText = "Mapping: " + file.name;
             };
             fileList.appendChild(div);
         });
-    }
-
-    // Startup: Load last directory
-    window.onload = async () => {
-        const lastDir = await window.electronAPI.storeGet('lastDir');
-        if (lastDir) {
-            currentProjectDir = lastDir;
-            loadFiles(lastDir);
-        }
+        document.getElementById('status').innerText = files.length + " audios ready.";
     };
 
     function markAyah() {
@@ -224,6 +201,16 @@
         renderTable();
     }
 
+    async function selectFolder() {
+        try {
+            directoryHandle = await window.showDirectoryPicker();
+            document.getElementById('folderStatus').innerText = "🚀 Target: " + directoryHandle.name;
+            document.getElementById('folderStatus').style.display = 'block';
+        } catch (e) {
+            console.error("Folder selection failed", e);
+        }
+    }
+
     async function saveJSON() {
         const sNum = surahNumInput.value.padStart(3, '0');
         const sTitle = surahTitleInput.value.trim().replace(/\s+/g, '-');
@@ -250,18 +237,30 @@
         };
 
         const jsonStr = JSON.stringify(output, null, 2);
-        
-        // Target path as requested by user
-        const targetDir = "C:\\Users\\HP\\Desktop\\ayah-by-ayah-audiomapper\\data\\timestamp";
-        const fullSavePath = window.electronAPI.pathJoin(targetDir, fileName);
 
-        const result = await window.electronAPI.saveJSON({ filePath: fullSavePath, content: jsonStr });
-        
-        if (result.success) {
-            document.getElementById('status').innerText = "✅ Saved directly to " + fileName;
+        if (directoryHandle) {
+            try {
+                const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(jsonStr);
+                await writable.close();
+                document.getElementById('status').innerText = "✅ Saved directly to " + directoryHandle.name;
+            } catch (e) {
+                console.error("Direct save failed", e);
+                downloadFallback(jsonStr, fileName);
+            }
         } else {
-            alert("Error saving file: " + result.error);
+            downloadFallback(jsonStr, fileName);
         }
+    }
+
+    function downloadFallback(content, name) {
+        const blob = new Blob([content], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        a.click();
+        document.getElementById('status').innerText = "💾 Downloaded to browser folder.";
     }
 
     window.onkeydown = (e) => {

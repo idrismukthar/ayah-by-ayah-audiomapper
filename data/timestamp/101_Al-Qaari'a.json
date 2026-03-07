@@ -1,0 +1,63 @@
+{
+  "surah_number": 101,
+  "surah_name": "Al Qariah",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "7.91"
+    },
+    {
+      "ayah": 2,
+      "start": "7.91",
+      "end": "10.27"
+    },
+    {
+      "ayah": 3,
+      "start": "10.27",
+      "end": "16.54"
+    },
+    {
+      "ayah": 4,
+      "start": "16.54",
+      "end": "24.13"
+    },
+    {
+      "ayah": 5,
+      "start": "24.13",
+      "end": "30.90"
+    },
+    {
+      "ayah": 6,
+      "start": "30.90",
+      "end": "37.01"
+    },
+    {
+      "ayah": 7,
+      "start": "37.01",
+      "end": "41.12"
+    },
+    {
+      "ayah": 8,
+      "start": "41.12",
+      "end": "46.39"
+    },
+    {
+      "ayah": 9,
+      "start": "46.39",
+      "end": "50.40"
+    },
+    {
+      "ayah": 10,
+      "start": "50.40",
+      "end": "55.94"
+    },
+    {
+      "ayah": 11,
+      "start": "55.94",
+      "end": "62.17"
+    }
+  ]
+}

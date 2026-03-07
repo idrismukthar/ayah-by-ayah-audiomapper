@@ -1,0 +1,43 @@
+{
+  "surah_number": 107,
+  "surah_name": "Al Maa'un",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "15.60"
+    },
+    {
+      "ayah": 2,
+      "start": "15.60",
+      "end": "20.94"
+    },
+    {
+      "ayah": 3,
+      "start": "20.94",
+      "end": "26.59"
+    },
+    {
+      "ayah": 4,
+      "start": "26.59",
+      "end": "29.79"
+    },
+    {
+      "ayah": 5,
+      "start": "29.79",
+      "end": "35.14"
+    },
+    {
+      "ayah": 6,
+      "start": "35.14",
+      "end": "39.64"
+    },
+    {
+      "ayah": 7,
+      "start": "39.64",
+      "end": "50.08"
+    }
+  ]
+}

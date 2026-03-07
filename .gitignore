@@ -1,28 +1,18 @@
-# Dependencies
-node_modules/
-
 # OS metadata
 .DS_Store
 Thumbs.db
 
-# Project-specific data (Large files excluded, JSONs included)
-data/
-!data/timestamp/
-!data/timestamp/*.json
+# Dependencies (if any)
+node_modules/
+
+# Audio Files (High Storage - DO NOT PUSH)
 *.mp3
 *.wav
 *.m4a
+*.aac
+*.ogg
 
-# Build files
-dist/
-build/
-*.exe
-*.dmg
-*.AppImage
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-logs/
-*.log
+# Data (Include JSONs, exclude rest)
+data/*
+!data/timestamp/
+!data/timestamp/*.json

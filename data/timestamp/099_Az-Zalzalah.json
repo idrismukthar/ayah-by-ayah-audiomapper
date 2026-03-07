@@ -1,0 +1,48 @@
+{
+  "surah_number": 99,
+  "surah_name": "Az Zalzalah",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "11.93"
+    },
+    {
+      "ayah": 2,
+      "start": "11.93",
+      "end": "17.48"
+    },
+    {
+      "ayah": 3,
+      "start": "17.48",
+      "end": "23.62"
+    },
+    {
+      "ayah": 4,
+      "start": "23.62",
+      "end": "29.55"
+    },
+    {
+      "ayah": 5,
+      "start": "29.55",
+      "end": "34.57"
+    },
+    {
+      "ayah": 6,
+      "start": "34.57",
+      "end": "42.69"
+    },
+    {
+      "ayah": 7,
+      "start": "42.69",
+      "end": "48.53"
+    },
+    {
+      "ayah": 8,
+      "start": "48.53",
+      "end": "58.67"
+    }
+  ]
+}

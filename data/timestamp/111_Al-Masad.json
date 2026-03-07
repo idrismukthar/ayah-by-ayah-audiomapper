@@ -1,0 +1,33 @@
+{
+  "surah_number": 111,
+  "surah_name": "Al Masad",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "12.70"
+    },
+    {
+      "ayah": 2,
+      "start": "12.70",
+      "end": "19.78"
+    },
+    {
+      "ayah": 3,
+      "start": "19.78",
+      "end": "25.08"
+    },
+    {
+      "ayah": 4,
+      "start": "25.08",
+      "end": "30.39"
+    },
+    {
+      "ayah": 5,
+      "start": "30.39",
+      "end": "40.02"
+    }
+  ]
+}

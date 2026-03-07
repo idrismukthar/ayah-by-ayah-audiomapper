@@ -1,0 +1,33 @@
+{
+  "surah_number": 97,
+  "surah_name": "Al Qadr",
+  "reciter": "Abdul Rashid Ali Sufi",
+  "riwayah": "Khalaf 'an Hamzah",
+  "data": [
+    {
+      "ayah": 1,
+      "start": 0,
+      "end": "14.58"
+    },
+    {
+      "ayah": 2,
+      "start": "14.58",
+      "end": "20.57"
+    },
+    {
+      "ayah": 3,
+      "start": "20.57",
+      "end": "27.41"
+    },
+    {
+      "ayah": 4,
+      "start": "27.41",
+      "end": "38.49"
+    },
+    {
+      "ayah": 5,
+      "start": "38.49",
+      "end": "56.61"
+    }
+  ]
+}
