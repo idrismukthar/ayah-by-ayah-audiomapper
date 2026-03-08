@@ -22,7 +22,7 @@ try {
         waveColor: '#555',
         progressColor: '#c5a059', 
         cursorColor: '#fff',
-        height: 250,
+        height: 120,
         minPxPerSec: 10,
         backend: 'MediaElement',
         fillParent: true,
