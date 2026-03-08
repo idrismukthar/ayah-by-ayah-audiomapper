@@ -104,8 +104,23 @@
             cursorColor: '#fff',
             height: 250,
             minPxPerSec: 10,
-            backend: 'MediaElement', // FIX: Streaming mode for large files like Baqarah
+            backend: 'MediaElement',
+            fillParent: true,
+            responsive: true,
             plugins: [ WaveSurfer.regions.create() ]
+        });
+
+        ws.on('loading', (percent) => {
+            document.getElementById('status').innerText = `⏳ Loading Audio: ${percent}%`;
+        });
+
+        ws.on('ready', () => {
+            document.getElementById('status').innerText = "✅ Ready to Map";
+        });
+
+        ws.on('error', (err) => {
+            console.error("WaveSurfer Error:", err);
+            document.getElementById('status').innerText = "❌ Error: " + err;
         });
     } catch (e) {
         console.error("WaveSurfer Error:", e);
@@ -148,7 +163,14 @@
                 document.querySelectorAll('.file-item').forEach(i => i.classList.remove('active'));
                 div.classList.add('active');
                 
-                ws.load(URL.createObjectURL(file));
+                const objectUrl = URL.createObjectURL(file);
+                
+                // PERFORMANCE FIX for Baqarah (Files over 20MB or long duration)
+                if (file.size > 20 * 1024 * 1024) {
+                    document.getElementById('status').innerText = "⚡ Large File Detected: Loading in High-Performance mode...";
+                }
+
+                ws.load(objectUrl);
                 stamps = [];
                 ws.clearRegions();
                 renderTable();
