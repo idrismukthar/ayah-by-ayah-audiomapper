@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athar Reader | Surat Al-Fatiha</title>
+    <!-- Premium Arabic Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #c5a059;
+            --bg: #050505;
+            --card: #121212;
+            --text-main: #e0e0e0;
+            --text-dim: #666;
+            --accent: #c5a059;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Amiri', serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphic Header */
+        header {
+            width: 100%;
+            padding: 20px 0;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--gold);
+            letter-spacing: 1px;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        /* Quran Content Area */
+        .quran-container {
+            max-width: 800px;
+            width: 90%;
+            margin: 40px 0 120px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .ayah-box {
+            padding: 20px;
+            border-radius: 12px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .ayah-text {
+            font-family: 'Scheherazade New', serif;
+            font-size: 2.8rem;
+            line-height: 1.8;
+            color: var(--text-dim);
+            transition: color 0.4s ease;
+        }
+
+        /* Active State Highlighting */
+        .ayah-box.active {
+            background: rgba(197, 160, 89, 0.05);
+            transform: scale(1.02);
+        }
+
+        .ayah-box.active .ayah-text {
+            color: #fff;
+            text-shadow: 0 0 20px rgba(197, 160, 89, 0.3);
+        }
+
+        .ayah-num {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+            font-size: 1rem;
+            margin-right: 15px;
+            color: var(--gold);
+            vertical-align: middle;
+        }
+
+        /* Bottom Player Bar */
+        .player-bar {
+            position: fixed;
+            bottom: 20px;
+            width: 90%;
+            max-width: 500px;
+            background: rgba(20, 20, 20, 0.9);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 200;
+        }
+
+        .btn-play {
+            background: var(--gold);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .btn-play:active { transform: scale(0.9); }
+
+        .progress-container {
+            flex: 1;
+            margin: 0 20px;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        #progress-bar {
+            height: 100%;
+            background: var(--gold);
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+
+        .time { font-size: 0.8rem; color: var(--text-dim); font-family: monospace; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #333; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>سورة الفاتحة</h1>
+    <p>Abdul Rashid Ali Sufi - Khalaf 'an Hamzah</p>
+</header>
+
+<div class="quran-container" id="ayah-list">
+    <!-- Ayahs will be populated here -->
+</div>
+
+<div class="player-bar">
+    <div class="time" id="current-time">0:00</div>
+    <div class="progress-container" id="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+    <div class="time" id="duration">0:00</div>
+    <button class="btn-play" id="play-btn">
+        <svg id="play-icon" viewBox="0 0 24 24" width="24" height="24" fill="black"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="pause-icon" viewBox="0 0 24 24" width="24" height="24" fill="black" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+    </button>
+</div>
+
+<audio id="main-audio" src="data/audio/001 - Al Fatiha.mp3"></audio>
+
+<script>
+    const audio = document.getElementById('main-audio');
+    const playBtn = document.getElementById('play-btn');
+    const playIcon = document.getElementById('play-icon');
+    const pauseIcon = document.getElementById('pause-icon');
+    const progressBar = document.getElementById('progress-bar');
+    const progressContainer = document.getElementById('progress-container');
+    const currentTimeEl = document.getElementById('current-time');
+    const durationEl = document.getElementById('duration');
+    const ayahList = document.getElementById('ayah-list');
+
+    // Surah Al-Fatiha Data
+    const surahData = {
+        number: 1,
+        name: "Al-Fatiha",
+        ayahs: [
+            "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
+            "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
+            "الرَّحْمَنِ الرَّحِيمِ",
+            "مَالِكِ يَوْمِ الدِّينِ",
+            "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
+            "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ",
+            "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ"
+        ],
+        timestamps: [
+            { ayah: 1, start: 0, end: 9.47 },
+            { ayah: 2, start: 9.47, end: 14.29 },
+            { ayah: 3, start: 14.29, end: 18.15 },
+            { ayah: 4, start: 18.15, end: 22.31 },
+            { ayah: 5, start: 22.31, end: 27.48 },
+            { ayah: 6, start: 27.48, end: 32.36 },
+            { ayah: 7, start: 32.36, end: 51.46 }
+        ]
+    };
+
+    // Render Ayahs
+    function renderAyahs() {
+        ayahList.innerHTML = surahData.ayahs.map((text, index) => `
+            <div class="ayah-box" id="ayah-${index + 1}" onclick="jumpToAyah(${surahData.timestamps[index].start})">
+                <div class="ayah-text">
+                    <span class="ayah-num">${index + 1}</span>
+                    ${text}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Play/Pause Logic
+    playBtn.onclick = () => {
+        if (audio.paused) {
+            audio.play();
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'block';
+        } else {
+            audio.pause();
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+        }
+    };
+
+    // Jump to Ayah
+    window.jumpToAyah = (time) => {
+        audio.currentTime = time;
+        audio.play();
+    };
+
+    // Update Progress & Highlighting
+    audio.ontimeupdate = () => {
+        const { currentTime, duration } = audio;
+        const progressPercent = (currentTime / duration) * 100;
+        progressBar.style.width = `${progressPercent}%`;
+        
+        // Format Time
+        currentTimeEl.innerText = formatTime(currentTime);
+        if (duration) durationEl.innerText = formatTime(duration);
+
+        // Highlight Active Ayah
+        surahData.timestamps.forEach(stamp => {
+            const el = document.getElementById(`ayah-${stamp.ayah}`);
+            if (currentTime >= stamp.start && currentTime < stamp.end) {
+                if (!el.classList.contains('active')) {
+                    document.querySelectorAll('.ayah-box').forEach(b => b.classList.remove('active'));
+                    el.classList.add('active');
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+    };
+
+    function formatTime(time) {
+        const mins = Math.floor(time / 60);
+        const secs = Math.floor(time % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // Seek Logic
+    progressContainer.onclick = (e) => {
+        const width = progressContainer.clientWidth;
+        const clickX = e.offsetX;
+        const duration = audio.duration;
+        audio.currentTime = (clickX / width) * duration;
+    };
+
+    renderAyahs();
+</script>
+
+</body>
+</html>
