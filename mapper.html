@@ -116,6 +116,9 @@
 
         ws.on('ready', () => {
             document.getElementById('status').innerText = "✅ Ready to Map";
+            if (isBaqarahMode) {
+                document.getElementById('status').innerHTML += ' <span style="color:var(--red)">[BAQARAH MODE ACTIVE]</span>';
+            }
         });
 
         ws.on('error', (err) => {
@@ -130,6 +133,7 @@
     let stamps = [];
     let lastStampTime = 0;
     let directoryHandle = null;
+    let isBaqarahMode = false;
     const fileList = document.getElementById('fileList');
     const fileInfo = document.getElementById('fileInfo');
     const surahNumInput = document.getElementById('surahNum');
@@ -165,12 +169,18 @@
                 
                 const objectUrl = URL.createObjectURL(file);
                 
-                // PERFORMANCE FIX for Baqarah (Files over 20MB or long duration)
-                if (file.size > 20 * 1024 * 1024) {
-                    document.getElementById('status').innerText = "⚡ Large File Detected: Loading in High-Performance mode...";
+                // BAQARAH MODE: Detect huge files (> 15MB or typically > 15 mins)
+                // This stops the browser from trying to draw a 2-hour waveform which causes crashes.
+                isBaqarahMode = file.size > 15 * 1024 * 1024; 
+                
+                if (isBaqarahMode) {
+                    document.getElementById('status').innerText = "⚡ Baqarah Mode: Disabling Waveform Drawing (Prevents Crash)...";
+                    // Load with tiny empty peaks to skip drawing
+                    ws.load(objectUrl, [0, 0, 0, 0, 0]); 
+                } else {
+                    ws.load(objectUrl);
                 }
-
-                ws.load(objectUrl);
+                
                 stamps = [];
                 ws.clearRegions();
                 renderTable();
