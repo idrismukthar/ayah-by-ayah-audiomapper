@@ -13,6 +13,7 @@ const markerBody = document.getElementById('markerBody');
 const zoomSlider = document.getElementById('zoomSlider');
 const statusDiv = document.getElementById('status');
 const folderStatus = document.getElementById('folderStatus');
+const stampsList = document.getElementById('stamps-list');
 
 // Initialize WaveSurfer
 try {
@@ -85,9 +86,39 @@ function changeSpeed(val) {
 function rewindLast() {
     if (stamps.length > 0) {
         const last = stamps[stamps.length - 1];
-        ws.setCurrentTime(parseFloat(last.start));
-        ws.play();
+        jumpToStamp(last.start);
         statusDiv.innerText = "⏪ Rewound to Ayah " + last.ayah;
+    }
+}
+
+// Jump to specific time
+function jumpToStamp(time) {
+    if (ws) {
+        ws.setCurrentTime(parseFloat(time));
+        ws.play();
+    }
+}
+
+// Delete specific stamp
+function deleteStamp(id) {
+    const index = stamps.findIndex(s => s.id === id);
+    if (index !== -1) {
+        stamps.splice(index, 1);
+        // Recalculate Ayah numbers
+        stamps.forEach((s, i) => s.ayah = i + 1);
+        ws.clearRegions();
+        stamps.forEach(s => {
+            ws.addRegion({
+                id: s.id,
+                start: s.start,
+                end: s.end,
+                color: 'rgba(255, 77, 77, 0.4)',
+                drag: true,
+                resize: true
+            });
+        });
+        renderTable();
+        statusDiv.innerText = "🗑️ Stamp deleted";
     }
 }
 
@@ -162,14 +193,34 @@ function markAyah() {
 }
 
 function renderTable() {
-    let html = stamps.map(s => `<tr><td>${s.ayah}</td><td>${s.start}s</td><td>${s.end}s</td><td>${(s.end-s.start).toFixed(2)}s</td></tr>`).join('');
+    // 1. Render Table Rows
+    let tableHtml = stamps.map(s => `<tr><td>${s.ayah}</td><td>${s.start}s</td><td>${s.end}s</td><td>${(s.end-s.start).toFixed(2)}s</td></tr>`).join('');
     if (ws && ws.getDuration() > 0) {
         let currentAyah = stamps.length + 1;
         let lastEnd = stamps.length > 0 ? stamps[stamps.length - 1].end : 0;
-        html += `<tr style="opacity: 0.5; font-style: italic;"><td>${currentAyah}</td><td>${lastEnd}s</td><td>--</td><td>(In Progress)</td></tr>`;
+        tableHtml += `<tr style="opacity: 0.5; font-style: italic;"><td>${currentAyah}</td><td>${lastEnd}s</td><td>--</td><td>(In Progress)</td></tr>`;
     }
-    markerBody.innerHTML = html;
+    markerBody.innerHTML = tableHtml;
     markerBody.scrollTop = markerBody.scrollHeight;
+
+    // 2. Render Interactive Cards
+    if (stamps.length === 0) {
+        stampsList.innerHTML = '<div style="color: #666; font-size: 0.8rem; grid-column: 1/-1; text-align: center; padding: 20px;">No stamps yet. Press \'M\' to start mapping.</div>';
+    } else {
+        stampsList.innerHTML = stamps.map(s => `
+            <div class="stamp-card" onclick="jumpToStamp(${s.start})">
+                <div class="info">
+                    <span class="num">Ayah ${s.ayah}</span>
+                    <span>${s.start}s - ${s.end}s</span>
+                </div>
+                <div class="actions">
+                    <button class="btn-mini btn-mini-play" onclick="event.stopPropagation(); jumpToStamp(${s.start})">▶</button>
+                    <button class="btn-mini btn-mini-del" onclick="event.stopPropagation(); deleteStamp('${s.id}')">✕</button>
+                </div>
+            </div>
+        `).join('');
+    }
+    stampsList.scrollTop = stampsList.scrollHeight;
 }
 
 function undo() {

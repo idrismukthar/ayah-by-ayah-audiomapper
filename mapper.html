@@ -10,12 +10,23 @@
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; height: 100vh; display: flex; flex-direction: column; }
         header { 
             background: #000; 
-            padding: 10px 20px; 
+            padding: 8px 20px; 
             border-bottom: 2px solid var(--gold); 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .header-actions .btn { padding: 6px 12px; font-size: 0.75rem; }
+        .btn-header-stamp { background: var(--red); color: white; border: 1px solid var(--red); }
+        .btn-header-stamp:hover { background: transparent; color: var(--red); }
+        
+        #status-container { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        #status { font-size: 0.75rem; color: #aaa; }
         #folderStatus { margin-left: auto; margin-right: 20px; }
         .layout { display: flex; flex: 1; overflow: hidden; }
         
@@ -43,14 +54,60 @@
         table { width: 100%; border-collapse: collapse; background: #111; border-radius: 8px; overflow: hidden; }
         th { text-align: left; padding: 12px; color: var(--gold); border-bottom: 2px solid #333; font-size: 0.8rem; }
         td { padding: 10px; border-bottom: 1px solid #222; font-family: monospace; font-size: 0.9rem; }
+
+        /* Interactive Stamps List Styling */
+        #stamps-list { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+            gap: 10px; 
+            margin-bottom: 15px; 
+            max-height: 200px; 
+            overflow-y: auto; 
+            background: #1a1a1a; 
+            padding: 10px; 
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        .stamp-card { 
+            background: #222; 
+            border: 1px solid #444; 
+            border-radius: 6px; 
+            padding: 8px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .stamp-card:hover { border-color: var(--gold); background: #2a2a2a; }
+        .stamp-card .info { display: flex; flex-direction: column; font-size: 0.75rem; }
+        .stamp-card .num { color: var(--gold); font-weight: bold; }
+        .stamp-card .actions { display: flex; gap: 5px; }
+        .btn-mini { padding: 4px 8px; font-size: 0.7rem; border-radius: 4px; border: none; cursor: pointer; color: white; }
+        .btn-mini-play { background: var(--gold); color: black; }
+        .btn-mini-del { background: #444; }
+        .btn-mini-del:hover { background: var(--red); }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-weight: bold; color: var(--gold);">ATHAR ARCHITECT v4.5</div>
-    <div id="status" style="font-size: 0.8rem; color: #888;">Select audio files to start</div>
-    <div id="folderStatus" style="font-size: 0.7rem; color: var(--gold); background: #222; padding: 4px 10px; border-radius: 15px; border: 1px solid #444; display: none;">📁 No folder set</div>
+    <div style="font-weight: bold; color: var(--gold); font-size: 1.1rem; min-width: 150px;">ATHAR ARCHITECT</div>
+    
+    <div class="header-actions">
+        <button class="btn btn-play" onclick="ws.playPause()">Play/Pause (Space)</button>
+        <button class="btn" onclick="rewindLast()" style="background:#555; color:white">⏪ Rewind Last</button>
+        <button class="btn btn-header-stamp" onclick="markAyah()">Stamp Ayah (M)</button>
+        <button class="btn" onclick="undo()" style="background:#444; color:white">Undo (Z)</button>
+        <div style="width: 2px; height: 20px; background: #333; margin: 0 5px;"></div>
+        <button class="btn" style="background:#007bff; color:white" onclick="selectFolder()">📂 Set Folder</button>
+        <button class="btn" style="background:#28a745; color:white" onclick="saveJSON()">💾 Save JSON (S)</button>
+    </div>
+
+    <div id="status-container">
+        <div id="status">Select audio files to start</div>
+        <div id="folderStatus" style="font-size: 0.65rem; color: var(--gold); background: #111; padding: 2px 8px; border-radius: 10px; border: 1px solid #333; display: none;">📁 No folder set</div>
+    </div>
 </header>
 
 <div class="layout">
@@ -86,13 +143,9 @@
             </select>
         </div>
 
-        <div class="action-bar">
-            <button class="btn btn-play" onclick="ws.playPause()">Play/Pause (Space)</button>
-            <button class="btn" onclick="rewindLast()" style="background:#555; color:white">⏪ Rewind Last</button>
-            <button class="btn btn-stamp" onclick="markAyah()">Stamp Ayah (M)</button>
-            <button class="btn" onclick="undo()" style="background:#444; color:white">Undo (Z)</button>
-            <button class="btn" onclick="selectFolder()" style="background:#007bff; color:white">📂 Set Folder</button>
-            <button class="btn" onclick="saveJSON()" style="background:#28a745; color:white">💾 Save JSON (S)</button>
+        <div id="stamps-list">
+            <!-- Dynamic Stamps List with Play/Delete will appear here -->
+            <div style="color: #666; font-size: 0.8rem; grid-column: 1/-1; text-align: center; padding: 20px;">No stamps yet. Press 'M' to start mapping.</div>
         </div>
 
         <div style="flex: 1; overflow-y: auto; background: #000; border: 1px solid #333; border-radius: 8px;">
