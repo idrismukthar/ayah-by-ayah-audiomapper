@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Athar Reader | Surat Al-Fatiha</title>
+    <title>Athar Reader | <%= surahData.surah_name %></title>
     <!-- Premium Arabic Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -170,8 +170,8 @@
 <body>
 
 <header>
-    <h1>سورة الفاتحة</h1>
-    <p>Abdul Rashid Ali Sufi - Khalaf 'an Hamzah</p>
+    <h1><%= surahData.surah_name %></h1>
+    <p><%= surahData.reciter %> - <%= surahData.riwayah %></p>
 </header>
 
 <div class="quran-container" id="ayah-list">
@@ -190,7 +190,7 @@
     </button>
 </div>
 
-<audio id="main-audio" src="data/audio/001 - Al Fatiha.mp3"></audio>
+<audio id="main-audio" src="<%= audioPath %>"></audio>
 
 <script>
     const audio = document.getElementById('main-audio');
@@ -203,28 +203,12 @@
     const durationEl = document.getElementById('duration');
     const ayahList = document.getElementById('ayah-list');
 
-    // Surah Al-Fatiha Data
+    <!-- Surah Data from Server -->
     const surahData = {
-        number: 1,
-        name: "Al-Fatiha",
-        ayahs: [
-            "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
-            "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
-            "الرَّحْمَنِ الرَّحِيمِ",
-            "مَالِكِ يَوْمِ الدِّينِ",
-            "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
-            "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ",
-            "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ"
-        ],
-        timestamps: [
-            { ayah: 1, start: 0, end: 9.47 },
-            { ayah: 2, start: 9.47, end: 14.29 },
-            { ayah: 3, start: 14.29, end: 18.15 },
-            { ayah: 4, start: 18.15, end: 22.31 },
-            { ayah: 5, start: 22.31, end: 27.48 },
-            { ayah: 6, start: 27.48, end: 32.36 },
-            { ayah: 7, start: 32.36, end: 51.46 }
-        ]
+        number: "<%= surahData.surah_number %>",
+        name: "<%= surahData.surah_name %>",
+        ayahs: <%- JSON.stringify(arabicText) %>,
+        timestamps: <%- JSON.stringify(surahData.data) %>
     };
 
     // Render Ayahs
