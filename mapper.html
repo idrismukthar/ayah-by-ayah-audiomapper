@@ -116,8 +116,8 @@
 
         ws.on('ready', () => {
             document.getElementById('status').innerText = "✅ Ready to Map";
-            if (isBaqarahMode) {
-                document.getElementById('status').innerHTML += ' <span style="color:var(--red)">[BAQARAH MODE ACTIVE]</span>';
+            if (isStreamingMode) {
+                document.getElementById('status').innerHTML += ' <span style="color:var(--red)">[STREAMING MODE ACTIVE]</span>';
             }
         });
 
@@ -133,7 +133,7 @@
     let stamps = [];
     let lastStampTime = 0;
     let directoryHandle = null;
-    let isBaqarahMode = false;
+    let isStreamingMode = false;
     const fileList = document.getElementById('fileList');
     const fileInfo = document.getElementById('fileInfo');
     const surahNumInput = document.getElementById('surahNum');
@@ -169,12 +169,12 @@
                 
                 const objectUrl = URL.createObjectURL(file);
                 
-                // BAQARAH MODE: Detect huge files (> 15MB or typically > 15 mins)
-                // This stops the browser from trying to draw a 2-hour waveform which causes crashes.
-                isBaqarahMode = file.size > 15 * 1024 * 1024; 
+                // STREAMING MODE: Detect extremely large files (> 50MB)
+                // This stops the browser from trying to draw a massive waveform which causes crashes.
+                isStreamingMode = file.size > 50 * 1024 * 1024; 
                 
-                if (isBaqarahMode) {
-                    document.getElementById('status').innerText = "⚡ Baqarah Mode: Disabling Waveform Drawing (Prevents Crash)...";
+                if (isStreamingMode) {
+                    document.getElementById('status').innerText = "⚡ Streaming Mode: Disabling Waveform Drawing (Prevents Crash)...";
                     // Load with tiny empty peaks to skip drawing
                     ws.load(objectUrl, [0, 0, 0, 0, 0]); 
                 } else {
