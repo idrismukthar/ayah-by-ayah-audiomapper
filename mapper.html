@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Athar Mapper: Architect v4.3</title>
+    <title>Athar Mapper: Architect v4.5</title>
     <script src="lib/wavesurfer.min.js"></script>
     <script src="lib/wavesurfer.regions.min.js"></script>
     <style>
@@ -19,7 +19,6 @@
         #folderStatus { margin-left: auto; margin-right: 20px; }
         .layout { display: flex; flex: 1; overflow: hidden; }
         
-        /* Sidebar Fix */
         .sidebar { width: 300px; background: var(--panel); border-right: 1px solid #333; display: flex; flex-direction: column; padding: 15px; box-sizing: border-box; }
         #fileList { flex: 1; overflow-y: auto; margin-top: 15px; border-top: 1px solid #333; padding-top: 10px; min-height: 200px; }
         .file-item { padding: 10px; background: #222; margin-bottom: 5px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; border-left: 3px solid transparent; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -36,10 +35,10 @@
         #waveform { width: 100%; height: 250px; }
         
         .zoom-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: #1a1a1a; padding: 10px; border-radius: 5px; }
-        .action-bar { display: flex; gap: 10px; margin-bottom: 15px; }
+        .action-bar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         .btn { padding: 12px 20px; border-radius: 6px; cursor: pointer; border: none; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
         .btn-play { background: var(--gold); color: black; }
-        .btn-stamp { background: var(--red); color: white; flex: 1; font-size: 1.1rem; }
+        .btn-stamp { background: var(--red); color: white; flex: 1; min-width: 150px; font-size: 1.1rem; }
         
         table { width: 100%; border-collapse: collapse; background: #111; border-radius: 8px; overflow: hidden; }
         th { text-align: left; padding: 12px; color: var(--gold); border-bottom: 2px solid #333; font-size: 0.8rem; }
@@ -49,7 +48,7 @@
 <body>
 
 <header>
-    <div style="font-weight: bold; color: var(--gold);">ATHAR ARCHITECT v4.3</div>
+    <div style="font-weight: bold; color: var(--gold);">ATHAR ARCHITECT v4.5</div>
     <div id="status" style="font-size: 0.8rem; color: #888;">Select audio files to start</div>
     <div id="folderStatus" style="font-size: 0.7rem; color: var(--gold); background: #222; padding: 4px 10px; border-radius: 15px; border: 1px solid #444; display: none;">📁 No folder set</div>
 </header>
@@ -73,12 +72,23 @@
         </div>
 
         <div class="zoom-controls">
-            <label>🔍 Waveform Zoom:</label>
-            <input type="range" id="zoomSlider" min="10" max="1000" value="10" style="flex:1">
+            <label>🔍 Zoom:</label>
+            <input type="range" id="zoomSlider" min="10" max="500" value="10" style="flex:1">
+            
+            <label style="margin-left: 15px;">⚡ Speed:</label>
+            <select id="speedSelect" onchange="changeSpeed(this.value)" style="background:#111; color:var(--gold); border:1px solid #444; padding:5px; border-radius:4px; font-weight:bold;">
+                <option value="0.5">0.5x</option>
+                <option value="0.75">0.75x</option>
+                <option value="1" selected>1.0x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2.0x</option>
+            </select>
         </div>
 
         <div class="action-bar">
             <button class="btn btn-play" onclick="ws.playPause()">Play/Pause (Space)</button>
+            <button class="btn" onclick="rewindLast()" style="background:#555; color:white">⏪ Rewind Last</button>
             <button class="btn btn-stamp" onclick="markAyah()">Stamp Ayah (M)</button>
             <button class="btn" onclick="undo()" style="background:#444; color:white">Undo (Z)</button>
             <button class="btn" onclick="selectFolder()" style="background:#007bff; color:white">📂 Set Folder</button>
@@ -94,218 +104,6 @@
     </div>
 </div>
 
-<script>
-    let ws;
-    try {
-        ws = WaveSurfer.create({
-            container: '#waveform',
-            waveColor: '#555',
-            progressColor: '#c5a059', 
-            cursorColor: '#fff',
-            height: 250,
-            minPxPerSec: 10,
-            backend: 'MediaElement',
-            fillParent: true,
-            responsive: true,
-            plugins: [ WaveSurfer.regions.create() ]
-        });
-
-        ws.on('loading', (percent) => {
-            document.getElementById('status').innerText = `⏳ Loading Audio: ${percent}%`;
-        });
-
-        ws.on('ready', () => {
-            document.getElementById('status').innerText = "✅ Ready to Map";
-            if (isStreamingMode) {
-                document.getElementById('status').innerHTML += ' <span style="color:var(--red)">[STREAMING MODE ACTIVE]</span>';
-            }
-        });
-
-        ws.on('error', (err) => {
-            console.error("WaveSurfer Error:", err);
-            document.getElementById('status').innerText = "❌ Error: " + err;
-        });
-    } catch (e) {
-        console.error("WaveSurfer Error:", e);
-        document.getElementById('status').innerText = "Error loading WaveSurfer.";
-    }
-
-    let stamps = [];
-    let lastStampTime = 0;
-    let directoryHandle = null;
-    let isStreamingMode = false;
-    const fileList = document.getElementById('fileList');
-    const fileInfo = document.getElementById('fileInfo');
-    const surahNumInput = document.getElementById('surahNum');
-    const surahTitleInput = document.getElementById('surahTitle');
-    const markerBody = document.getElementById('markerBody');
-    const zoomSlider = document.getElementById('zoomSlider');
-
-    if (ws) zoomSlider.oninput = () => ws.zoom(Number(zoomSlider.value));
-
-    // REWRITTEN FILE LOADER (Individual File Selection)
-    document.getElementById('fileInput').onchange = (e) => {
-        const files = Array.from(e.target.files);
-        fileList.innerHTML = '';
-        
-        if(files.length === 0) {
-            fileInfo.innerText = "";
-            return;
-        }
-
-        // Numeric Sort
-        files.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
-
-        fileInfo.innerText = `${files.length} file(s) selected`;
-
-        files.forEach(file => {
-            const div = document.createElement('div');
-            div.className = 'file-item';
-            div.innerText = file.name;
-            div.title = file.name; // Shows full name on hover
-            div.onclick = () => {
-                document.querySelectorAll('.file-item').forEach(i => i.classList.remove('active'));
-                div.classList.add('active');
-                
-                const objectUrl = URL.createObjectURL(file);
-                
-                // STREAMING MODE: Detect extremely large files (> 50MB)
-                // This stops the browser from trying to draw a massive waveform which causes crashes.
-                isStreamingMode = file.size > 50 * 1024 * 1024; 
-                
-                if (isStreamingMode) {
-                    document.getElementById('status').innerText = "⚡ Streaming Mode: Disabling Waveform Drawing (Prevents Crash)...";
-                    // Load with tiny empty peaks to skip drawing
-                    ws.load(objectUrl, [0, 0, 0, 0, 0]); 
-                } else {
-                    ws.load(objectUrl);
-                }
-                
-                stamps = [];
-                ws.clearRegions();
-                renderTable();
-                
-                // Improved Extraction Logic
-                let name = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
-                let sNumMatch = name.match(/^\d+/);
-                surahNumInput.value = sNumMatch ? sNumMatch[0] : "";
-                
-                // Clean Title: remove leading digits and common separators (space, dash, underscore)
-                let cleanTitle = name.replace(/^\d+[\s\-_]*/, "").trim();
-                surahTitleInput.value = cleanTitle;
-                
-                document.getElementById('status').innerText = "Mapping: " + file.name;
-            };
-            fileList.appendChild(div);
-        });
-        document.getElementById('status').innerText = files.length + " audios ready.";
-    };
-
-    function markAyah() {
-        if (!ws.isPlaying() && ws.getCurrentTime() === 0) return;
-        
-        let nowMs = Date.now();
-        if (nowMs - lastStampTime < 300) return;
-        lastStampTime = nowMs;
-
-        let now = ws.getCurrentTime().toFixed(2);
-        let lastEnd = stamps.length > 0 ? stamps[stamps.length - 1].end : 0;
-        
-        stamps.push({ ayah: stamps.length + 1, start: lastEnd, end: now });
-        ws.addRegion({ start: now, end: parseFloat(now) + 0.1, color: 'rgba(255, 77, 77, 0.9)', drag: false, resize: false });
-        renderTable();
-    }
-
-    function renderTable() {
-        let html = stamps.map(s => `<tr><td>${s.ayah}</td><td>${s.start}s</td><td>${s.end}s</td><td>${(s.end-s.start).toFixed(2)}s</td></tr>`).join('');
-        if (ws && ws.getDuration() > 0) {
-            let currentAyah = stamps.length + 1;
-            let lastEnd = stamps.length > 0 ? stamps[stamps.length - 1].end : 0;
-            html += `<tr style="opacity: 0.5; font-style: italic;"><td>${currentAyah}</td><td>${lastEnd}s</td><td>--</td><td>(In Progress)</td></tr>`;
-        }
-        markerBody.innerHTML = html;
-        markerBody.scrollTop = markerBody.scrollHeight;
-    }
-
-    function undo() {
-        stamps.pop();
-        ws.clearRegions();
-        stamps.forEach(s => ws.addRegion({start: s.end, end: parseFloat(s.end)+0.1, color: 'rgba(255, 77, 77, 0.9)'}));
-        renderTable();
-    }
-
-    async function selectFolder() {
-        try {
-            directoryHandle = await window.showDirectoryPicker();
-            document.getElementById('folderStatus').innerText = "🚀 Target: " + directoryHandle.name;
-            document.getElementById('folderStatus').style.display = 'block';
-        } catch (e) {
-            console.error("Folder selection failed", e);
-        }
-    }
-
-    async function saveJSON() {
-        const sNum = surahNumInput.value.padStart(3, '0');
-        const sTitle = surahTitleInput.value.trim().replace(/\s+/g, '-');
-        const fileName = `${sNum}_${sTitle}.json`;
-        
-        let finalStamps = [...stamps];
-        let duration = ws.getDuration();
-        let lastEnd = finalStamps.length > 0 ? parseFloat(finalStamps[finalStamps.length - 1].end) : 0;
-
-        if (duration > lastEnd + 0.1) {
-            finalStamps.push({
-                ayah: finalStamps.length + 1,
-                start: lastEnd.toFixed(2),
-                end: duration.toFixed(2)
-            });
-        }
-
-        let output = {
-            surah_number: parseInt(surahNumInput.value),
-            surah_name: surahTitleInput.value,
-            reciter: "Abdul Rashid Ali Sufi",
-            riwayah: "Khalaf 'an Hamzah",
-            data: finalStamps
-        };
-
-        const jsonStr = JSON.stringify(output, null, 2);
-
-        if (directoryHandle) {
-            try {
-                const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
-                const writable = await fileHandle.createWritable();
-                await writable.write(jsonStr);
-                await writable.close();
-                document.getElementById('status').innerText = "✅ Saved directly to " + directoryHandle.name;
-            } catch (e) {
-                console.error("Direct save failed", e);
-                downloadFallback(jsonStr, fileName);
-            }
-        } else {
-            downloadFallback(jsonStr, fileName);
-        }
-    }
-
-    function downloadFallback(content, name) {
-        const blob = new Blob([content], {type: 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = name;
-        a.click();
-        document.getElementById('status').innerText = "💾 Downloaded to browser folder.";
-    }
-
-    window.onkeydown = (e) => {
-        if(document.activeElement.tagName === 'INPUT') return;
-        if(e.key.toLowerCase() === 'm') {
-            if (e.repeat) return;
-            markAyah();
-        }
-        if(e.code === 'Space') { e.preventDefault(); ws.playPause(); }
-        if(e.key.toLowerCase() === 'z') undo();
-        if(e.key.toLowerCase() === 's') saveJSON();
-    }
-</script>
+<script src="mapper.js"></script>
 </body>
 </html>
